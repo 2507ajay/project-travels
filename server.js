@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
 
 const app = express();
 app.use(cors()); 
@@ -105,8 +106,42 @@ app.post('/api/reviews', async (req, res) => {
   }
 });
 
-// --- SERVER START ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://travels-frontend.onrender.com",
+    "https://travels-1-3tf2.onrender.com"
+  ]
+}));
+
+
+// --- SERVE FRONTEND ---
+// This looks "up" one level from the Backend folder to find the 'build' folder
+app.use(express.static(path.join(__dirname, '../build')));
+
+app.get('*', (req, res) => {
+  // If the request isn't for an API, send the frontend
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  }
 });
+
+
+// Server start
+const PORT = process.env.PORT || 10000; // Render usually uses port 10000
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on ports ${PORT}`);
+});
+
+// // Server start
+// const PORT = process.env.PORT || 5000;
+
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT}`);
+// });
+
+
+
